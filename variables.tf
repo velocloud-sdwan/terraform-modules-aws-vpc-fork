@@ -70,11 +70,17 @@ variable "enable_network_address_usage_metrics" {
   default     = null
 }
 
-# TODO: the name invites passing `cidr` alongside it, which is then silently ignored because
-# `cidr_block` is set to null and IPAM chooses the range (reported in #1135). To request one
-# specific range, leave this alone and pass `ipv4_ipam_pool_id` with `cidr`
+# TODO: the name invites passing `cidr` alongside it, which is then silently ignored
+# unless preserve_ipv4_cidr_with_ipam is true (reported in #1135). To request one
+# specific IPv4 range from IPAM, leave this false and pass ipv4_ipam_pool_id with cidr.
 variable "use_ipam_pool" {
   description = "Determines whether IPAM pool is used for CIDR allocation"
+  type        = bool
+  default     = false
+}
+
+variable "preserve_ipv4_cidr_with_ipam" {
+  description = "Preserve the explicit IPv4 CIDR when use_ipam_pool is true, for example when only the IPv6 CIDR comes from IPAM. Do not combine with ipv4_netmask_length."
   type        = bool
   default     = false
 }

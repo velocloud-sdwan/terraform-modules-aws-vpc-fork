@@ -30,7 +30,7 @@ resource "aws_vpc" "this" {
 
   region = var.region
 
-  cidr_block          = var.use_ipam_pool ? null : var.cidr
+  cidr_block          = var.preserve_ipv4_cidr_with_ipam ? var.cidr : (var.use_ipam_pool ? null : var.cidr)
   ipv4_ipam_pool_id   = var.ipv4_ipam_pool_id
   ipv4_netmask_length = var.ipv4_netmask_length
 
