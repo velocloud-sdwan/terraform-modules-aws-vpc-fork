@@ -214,6 +214,33 @@ module "vpc_cidr_from_ipam" {
 }
 ```
 
+### Explicit IPv4 CIDR with IPv6 IPAM
+
+When IPv4 is fixed outside IPAM and IPv6 is assigned from an IPAM pool,
+keep the VPC's IPv4 `cidr` with `preserve_ipv4_cidr_with_ipam = true`.
+`use_ipam_pool = true` prevents the module from requesting an
+Amazon-provided IPv6 CIDR. Supply the exact IPv6 CIDR available for
+allocation from the selected pool.
+
+```hcl
+module "vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+
+  name = "dual-stack-vpc"
+  cidr = var.ipv4_vpc_cidr
+
+  enable_ipv6                  = true
+  use_ipam_pool                = true
+  preserve_ipv4_cidr_with_ipam = true
+  ipv6_ipam_pool_id            = var.ipv6_ipam_pool_id
+  ipv6_cidr                    = var.ipv6_vpc_cidr
+}
+```
+
+Do not set `ipv6_netmask_length` with an exact `ipv6_cidr`, or
+`ipv4_netmask_length` with an explicit IPv4 `cidr`. An
+`ipv4_ipam_pool_id` is unnecessary when IPv4 is outside IPAM.
+
 <!-- BEGIN_KNOWN_LIMITATIONS -->
 
 ## Known limitations (Terraform/OpenTofu, not this module)
@@ -482,7 +509,7 @@ No modules.
 | <a name="input_enable_dns_hostnames"></a> [enable\_dns\_hostnames](#input\_enable\_dns\_hostnames) | Should be true to enable DNS hostnames in the VPC | `bool` | `true` | no |
 | <a name="input_enable_dns_support"></a> [enable\_dns\_support](#input\_enable\_dns\_support) | Should be true to enable DNS support in the VPC | `bool` | `true` | no |
 | <a name="input_enable_flow_log"></a> [enable\_flow\_log](#input\_enable\_flow\_log) | Whether or not to enable VPC Flow Logs | `bool` | `false` | no |
-| <a name="input_enable_ipv6"></a> [enable\_ipv6](#input\_enable\_ipv6) | Requests an Amazon-provided IPv6 CIDR block with a /56 prefix length for the VPC. You cannot specify the range of IP addresses, or the size of the CIDR block | `bool` | `false` | no |
+| <a name="input_enable_ipv6"></a> [enable\_ipv6](#input\_enable\_ipv6) | Enable IPv6; request an AWS-provided /56 unless using IPAM | `bool` | `false` | no |
 | <a name="input_enable_nat_gateway"></a> [enable\_nat\_gateway](#input\_enable\_nat\_gateway) | Should be true if you want to provision NAT Gateways for each of your private networks | `bool` | `false` | no |
 | <a name="input_enable_network_address_usage_metrics"></a> [enable\_network\_address\_usage\_metrics](#input\_enable\_network\_address\_usage\_metrics) | Determines whether network address usage metrics are enabled for the VPC | `bool` | `null` | no |
 | <a name="input_enable_public_redshift"></a> [enable\_public\_redshift](#input\_enable\_public\_redshift) | Controls if redshift should have public routing table | `bool` | `false` | no |
@@ -558,7 +585,7 @@ No modules.
 | <a name="input_outpost_subnet_suffix"></a> [outpost\_subnet\_suffix](#input\_outpost\_subnet\_suffix) | Suffix to append to outpost subnets name | `string` | `"outpost"` | no |
 | <a name="input_outpost_subnet_tags"></a> [outpost\_subnet\_tags](#input\_outpost\_subnet\_tags) | Additional tags for the outpost subnets | `map(string)` | `{}` | no |
 | <a name="input_outpost_subnets"></a> [outpost\_subnets](#input\_outpost\_subnets) | A list of outpost subnets inside the VPC | `list(string)` | `[]` | no |
-| <a name="input_preserve_ipv4_cidr_with_ipam"></a> [preserve\_ipv4\_cidr\_with\_ipam](#input\_preserve\_ipv4\_cidr\_with\_ipam) | Preserve the explicit IPv4 CIDR when use_ipam_pool is true, for example when only the IPv6 CIDR comes from IPAM. Do not combine with ipv4_netmask_length. | `bool` | `false` | no |
+| <a name="input_preserve_ipv4_cidr_with_ipam"></a> [preserve\_ipv4\_cidr\_with\_ipam](#input\_preserve\_ipv4\_cidr\_with\_ipam) | Keep the explicit VPC IPv4 CIDR when use_ipam_pool is true | `bool` | `false` | no |
 | <a name="input_private_acl_tags"></a> [private\_acl\_tags](#input\_private\_acl\_tags) | Additional tags for the private subnets network ACL | `map(string)` | `{}` | no |
 | <a name="input_private_dedicated_network_acl"></a> [private\_dedicated\_network\_acl](#input\_private\_dedicated\_network\_acl) | Whether to use dedicated network ACL (not default) and custom rules for private subnets | `bool` | `false` | no |
 | <a name="input_private_inbound_acl_rules"></a> [private\_inbound\_acl\_rules](#input\_private\_inbound\_acl\_rules) | Private subnets inbound network ACLs | `list(map(string))` | <pre>[<br/>  {<br/>    "cidr_block": "0.0.0.0/0",<br/>    "from_port": 0,<br/>    "protocol": "-1",<br/>    "rule_action": "allow",<br/>    "rule_number": 100,<br/>    "to_port": 0<br/>  }<br/>]</pre> | no |

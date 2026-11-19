@@ -104,9 +104,11 @@ module "disabled" {
 # subnets, as `set-netmask` does, or request one specific CIDR from the pool and define
 # subnets against it, as `pinned-cidr` does.
 #
-# The difference is `use_ipam_pool`. When it is true the module sets `cidr_block` to null and
-# IPAM chooses, so any `cidr` you pass is ignored. Leave it alone and pass `ipv4_ipam_pool_id`
-# with `cidr` to ask for a specific range instead.
+# With `use_ipam_pool = true`, the module normally sets `cidr_block` to null,
+# so IPAM chooses the IPv4 CIDR and any `cidr` input is ignored. Set
+# `preserve_ipv4_cidr_with_ipam = true` to keep an explicit IPv4 CIDR while
+# IPv6 comes from IPAM. For a pinned IPv4 IPAM CIDR, leave `use_ipam_pool`
+# false and pass `ipv4_ipam_pool_id` with `cidr`.
 #
 # For an explanation on prolonged delete times on IPAM pools see 2nd
 # *note* in terraform docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_ipam_pool_cidr

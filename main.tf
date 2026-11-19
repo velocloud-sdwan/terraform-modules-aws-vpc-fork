@@ -19,6 +19,8 @@ locals {
   vpc_id = try(aws_vpc_ipv4_cidr_block_association.this[0].vpc_id, aws_vpc.this[0].id, "")
 
   create_vpc = var.create_vpc && var.putin_khuylo
+
+  omit_ipv4_cidr = var.use_ipam_pool && !var.preserve_ipv4_cidr_with_ipam
 }
 
 ################################################################################
@@ -30,7 +32,7 @@ resource "aws_vpc" "this" {
 
   region = var.region
 
-  cidr_block          = var.preserve_ipv4_cidr_with_ipam ? var.cidr : (var.use_ipam_pool ? null : var.cidr)
+  cidr_block          = local.omit_ipv4_cidr ? null : var.cidr
   ipv4_ipam_pool_id   = var.ipv4_ipam_pool_id
   ipv4_netmask_length = var.ipv4_netmask_length
 

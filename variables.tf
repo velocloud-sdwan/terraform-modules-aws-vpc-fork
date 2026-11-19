@@ -70,9 +70,10 @@ variable "enable_network_address_usage_metrics" {
   default     = null
 }
 
-# TODO: the name invites passing `cidr` alongside it, which is then silently ignored
-# unless preserve_ipv4_cidr_with_ipam is true (reported in #1135). To request one
-# specific IPv4 range from IPAM, leave this false and pass ipv4_ipam_pool_id with cidr.
+# TODO: the name invites passing `cidr` alongside it, which is ignored
+# unless `preserve_ipv4_cidr_with_ipam` is true (reported in #1135).
+# To request a specific IPv4 range from IPAM, leave `use_ipam_pool` false
+# and pass `ipv4_ipam_pool_id` with `cidr`.
 variable "use_ipam_pool" {
   description = "Determines whether IPAM pool is used for CIDR allocation"
   type        = bool
@@ -80,7 +81,7 @@ variable "use_ipam_pool" {
 }
 
 variable "preserve_ipv4_cidr_with_ipam" {
-  description = "Preserve the explicit IPv4 CIDR when use_ipam_pool is true, for example when only the IPv6 CIDR comes from IPAM. Do not combine with ipv4_netmask_length."
+  description = "Keep the explicit VPC IPv4 CIDR when use_ipam_pool is true"
   type        = bool
   default     = false
 }
@@ -98,7 +99,7 @@ variable "ipv4_netmask_length" {
 }
 
 variable "enable_ipv6" {
-  description = "Requests an Amazon-provided IPv6 CIDR block with a /56 prefix length for the VPC. You cannot specify the range of IP addresses, or the size of the CIDR block"
+  description = "Enable IPv6; request an AWS-provided /56 unless using IPAM"
   type        = bool
   default     = false
 }
